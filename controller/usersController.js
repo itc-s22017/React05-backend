@@ -6,4 +6,16 @@ const getUsers = async (req, res) => {
     return res.status(200).json({ users });
 };
 
+//ユーザー情報取得する
+const getUserFromParam = async (req, res) => {
+    try {
+        const user = await User.findOne({name:req.params.username}).select("name")
+        return res.status(200).json(user)
+    } catch (e) {
+        return res.status(400).json(e)
+    }
+
+}
+
 exports.getUsers = getUsers;
+exports.getUserFromParam = getUserFromParam;

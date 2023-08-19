@@ -14,6 +14,10 @@ const signup = async (req, res) => {
     const { name, email, password } = req.body;
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(password, salt);
+    const checkUsername = await User.findOne({ name: name })
+    if (checkUsername) {
+        return
+    }
     const user = await User.create({
         name,
         email,
