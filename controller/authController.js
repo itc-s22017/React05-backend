@@ -98,16 +98,16 @@ const refreshToken = async (req, res) => {
 };
 
 const removeToken = async (req, res) => {
-    const { refresh_token } = req.body;
+    // const { refresh_token } = req.body;
 
     try {
-        const token = await Token.findOne({ token: refresh_token });
+        const token = await Token.findOne({token:req.params.id})
         if (!token) {
             return res
                 .status(200)
                 .json({ message: 'ログアウト処理が完了しました。' });
         } else {
-            await token.remove();
+            await token.deleteOne()
             return res
                 .status(200)
                 .json({ message: 'ログアウト処理が完了しました。' });

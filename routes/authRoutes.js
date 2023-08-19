@@ -10,7 +10,7 @@ router.post('/signup', signup);
 router.post('/login', login);
 router.get('/user', verifyToken, user);
 router.post('/refresh_token',refreshToken)
-router.delete('/remove_token', removeToken);
+router.delete('/remove_token/:id', removeToken);
 
 
 
