@@ -42,10 +42,11 @@ const login = async (req, res) => {
     const token = generateToken(user.email);
     const refresh_token = generateRefreshToken(user.email);
     // const user2 = await User.findOne({ email }).select("-password")
+
     await Token.create({
         userId: user._id,
         token: refresh_token,
-    });
+    })
 
     return res.status(200).json({ message: "Login Succes", token, refresh_token })
 }
@@ -94,24 +95,24 @@ const refreshToken = async (req, res) => {
 
 const removeToken = async (req, res) => {
     const { refresh_token } = req.body;
-  
+
     try {
-      const token = await Token.findOne({ token: refresh_token });
-      if (!token) {
-        return res
-          .status(200)
-          .json({ message: 'ログアウト処理が完了しました。' });
-      } else {
-        await token.remove();
-        return res
-          .status(200)
-          .json({ message: 'ログアウト処理が完了しました。' });
-      }
+        const token = await Token.findOne({ token: refresh_token });
+        if (!token) {
+            return res
+                .status(200)
+                .json({ message: 'ログアウト処理が完了しました。' });
+        } else {
+            await token.remove();
+            return res
+                .status(200)
+                .json({ message: 'ログアウト処理が完了しました。' });
+        }
     } catch (err) {
-      return res.status(401).json({ message: err.message });
+        return res.status(401).json({ message: err.message });
     }
-  };
-  
+};
+
 
 exports.signup = signup;
 exports.login = login;
