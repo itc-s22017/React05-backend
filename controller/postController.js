@@ -21,8 +21,8 @@ const getPosts = async (req, res) => {
 //特定の人の投稿を全部取る
 const getPersonPosts = async (req, res) => {
     try {
-        const user = await User.findOne({ name: req.params.username })
-        const posts = await Post.find({ username: user.name })
+        const user = await User.findById(req.params.id)
+        const posts = await Post.find({ userId: user._id })
         return res.status(200).json(posts)
     } catch (e) {
         return res.status(400).json(e)
@@ -43,9 +43,67 @@ const deletePost = async (req, res) => {
     }
 }
 
+//投稿にいいねを押す
+const like = async (req, res) => {
+    const { userId } = req.body //自分のuserId
+    const post = await Post.findById(req.params.id)
+    try {
+        // まだいいねしてなかったらいいねする。してたら外す
+        if (!post.likes.includes(userId)) {
+            await post.updateOne({
+                $push: {
+                    likes: userId
+                }
+            })
+            return res.status(200).json("いいねしました")
+        } else {
+            await post.updateOne({
+                $pull: {
+                    likes: userId
+                }
+            })
+            return res.status(200).json("いいねを外しました")
+        }
+    } catch (e) {
+        return res.status(400).json("liked error")
+    }
+}
+
+//投稿のいいね数を取得するやつ && 自分がすでにいいねしてるか : Boolean
+const countLikes = async (req, res) => {
+    const { userId } = req.body
+    const post = await Post.findById(req.params.id)
+    try {
+        const isLiked = await post.likes.includes(userId)
+        return res.status(200).json({ length: post.likes.length, isLiked })
+    } catch (e) {
+        return res.status(400).json(e)
+    }
+}
+
+//postIdからいいねしたユーザーを取得
+const getUserFromLikes = async (req, res) => {
+    // const arr = [
+    //     "64e596adfb8a6f91cd0d3dad",
+    //     "64dc26d34b2f4353d2da03fb",
+    // ]
+    try {
+        const post = await Post.findById(req.params.id)
+        const users = await Promise.all(post.likes.map(async (data) => {
+            return await User.findById(data).select("_id name")
+        }))
+        return res.status(200).json(users)
+    } catch (e) {
+        return res.status(400).json(e)
+    }
+}
+
 
 
 exports.post = post
 exports.getPosts = getPosts
 exports.getPersonPosts = getPersonPosts
 exports.deletePost = deletePost
+exports.like = like
+exports.countLikes = countLikes
+exports.getUserFromLikes = getUserFromLikes

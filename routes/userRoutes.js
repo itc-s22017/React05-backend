@@ -4,6 +4,6 @@ const verifyToken = require('../middleware/VerifyToken');
 const { getUsers, getUserFromParam } = require('../controller/usersController');
 
 router.get('/', verifyToken, getUsers);
-router.get('/:username', getUserFromParam)
+router.get('/:id', getUserFromParam)
 
 module.exports = router;

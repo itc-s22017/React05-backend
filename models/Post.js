@@ -10,10 +10,18 @@ const PostSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    email: { 
-        type: String, 
-        required: true },
-    likes: { type: Array }
+    userId: {
+        type:String,
+        required:true
+    },
+    email: {
+        type: String,
+        default:""
+    },
+    likes: { 
+        type: Array ,
+        default:[]
+    },
 }, { timestamps: true })
 
 module.exports = mongoose.model("Post", PostSchema)
