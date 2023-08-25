@@ -22,6 +22,14 @@ const PostSchema = new mongoose.Schema({
         type: Array ,
         default:[]
     },
+    replies: {
+        type:Array,
+        default:[]
+    },
+    reply: {
+        type:Boolean,
+        default:false
+    }
 }, { timestamps: true })
 
 module.exports = mongoose.model("Post", PostSchema)

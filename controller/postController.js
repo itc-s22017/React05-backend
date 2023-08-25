@@ -3,10 +3,10 @@ const User = require("../models/User")
 
 //投稿
 const post = async (req, res) => {
-    const { username, email, content } = req.body
-    const post = new Post(req.body)
+    const post = await new Post(req.body)
 
     const savePost = await post.save()
+
 
     return res.status(200).json(savePost)
 }
@@ -98,6 +98,61 @@ const getUserFromLikes = async (req, res) => {
     }
 }
 
+// reply用 paramsから投稿を一個取得
+const getPostFromParam = async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.postId)
+        return res.status(200).json(post)
+    } catch (e) {
+        return res.status(400).json(e)
+    }
+}
+
+//reply送ったらschemaのrepliesに入れる
+const setReplies = async (req, res) => {
+    const post = await Post.findById(req.params.postId)
+    try {
+
+        await post.updateOne({
+            $push: {
+                replies: req.body.postId
+            }
+        })
+        return res.status(200).json("Success")
+
+    } catch (e) {
+        return res.status(400).json("リプレイ失敗")
+    }
+}
+
+const getReplies = async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.postId)
+        const posts = await Promise.all(post.replies.map(async (data) => {
+            return await Post.findById(data)
+        }))
+        return res.status(200).json(posts)
+    } catch (e) {
+        return res.status(400).json(e)
+    }
+}
+
+//コメント数を返すやつだけどバグってます
+const getNumberOfcomment = async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.postId)
+        const valid = await Promise.all(post.replies.filter(async (data) => {
+            return await Post.findById(data);
+        }))
+
+        const filteredReplies = valid.filter(reply => reply !== null);
+        const length = filteredReplies.length
+        return res.status(200).json(length)
+    } catch (e) {
+        return res.status(400).json(e)
+    }
+}
+
 
 
 exports.post = post
@@ -107,3 +162,7 @@ exports.deletePost = deletePost
 exports.like = like
 exports.countLikes = countLikes
 exports.getUserFromLikes = getUserFromLikes
+exports.getPostFromParam = getPostFromParam
+exports.setReplies = setReplies
+exports.getReplies = getReplies
+exports.getNumberOfcomment = getNumberOfcomment
