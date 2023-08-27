@@ -14,7 +14,15 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
         minLength: 8
+    },
+    followings: {
+        type: Array,
+        default: []
+    },
+    followers: {
+        type: Array,
+        default: []
     }
 })
 
-module.exports = mongoose.model("User",UserSchema)
+module.exports = mongoose.model("User", UserSchema)
