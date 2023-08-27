@@ -36,23 +36,27 @@ const signup = async (req, res) => {
 };
 
 const login = async (req, res) => {
-    const { email, password } = req.body
-    const user = await User.findOne({ email })
-    if (!user) res.status(400).json({ message: "Not Found User" })
+    try {
+        const { email, password } = req.body
+        const user = await User.findOne({ email })
+        if (!user) { return res.status(400).json({ message: "Not Found User" }) }
 
-    const isMatch = await bcrypt.compare(password, user.password)
-    if (!isMatch) res.status(400).json({ message: "Password Incorrect" })
+        const isMatch = await bcrypt.compare(password, user.password)
+        if (!isMatch) {return res.status(400).json({ message: "Password Incorrect" })}
 
-    const token = generateToken(user.email);
-    const refresh_token = generateRefreshToken(user.email);
-    // const user2 = await User.findOne({ email }).select("-password")
+        const token = generateToken(user.email);
+        const refresh_token = generateRefreshToken(user.email);
+        // const user2 = await User.findOne({ email }).select("-password")
 
-    await Token.create({
-        userId: user._id,
-        token: refresh_token,
-    })
+        await Token.create({
+            userId: user._id,
+            token: refresh_token,
+        })
 
-    return res.status(200).json({ message: "Login Succes", token, refresh_token })
+        return res.status(200).json({ message: "Login Succes", token, refresh_token })
+    } catch (e) {
+        return res.status(400).json({ message: "Login Failed" })
+    }
 }
 
 const user = async (req, res) => {
@@ -101,7 +105,7 @@ const removeToken = async (req, res) => {
     // const { refresh_token } = req.body;
 
     try {
-        const token = await Token.findOne({token:req.params.id})
+        const token = await Token.findOne({ token: req.params.id })
         if (!token) {
             return res
                 .status(200)
