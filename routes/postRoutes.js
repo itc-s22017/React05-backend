@@ -3,7 +3,7 @@ const router = express.Router();
 const {
     post, getPosts, getPersonPosts, deletePost,
     like, countLikes, getUserFromLikes,getPostFromParam,
-    setReplies,getReplies,getNumberOfcomment
+    setReplies,getReplies,getNumberOfcomment,getFollowingsPosts
 } = require("../controller/postController")
 
 router.post("/", post)
@@ -17,6 +17,7 @@ router.get("/getPostFromParam/:postId", getPostFromParam)
 router.post("/setReply/:postId", setReplies)
 router.get("/getReply/:postId", getReplies)
 router.get("/getNumberOfComment/:postId", getNumberOfcomment)
+router.get("/friendsPosts",getFollowingsPosts)
 
 
 

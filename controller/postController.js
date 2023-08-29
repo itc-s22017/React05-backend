@@ -11,6 +11,28 @@ const post = async (req, res) => {
     return res.status(200).json(savePost)
 }
 
+//自分とフォローしている人の投稿を取る
+const getFollowingsPosts = async (req, res) => {
+    const userId = req.query.userId
+
+    try {
+        const me = await User.findById(userId)
+        if (!me) {
+            return res.status(400).json({ message: "NOT FOUND USER" })
+        }
+        const postsOfMe = await Post.find({ userId: me._id })
+        const friendsPosts = await Promise.all(me.followings.map(id => {
+            return Post.find({ userId: id })
+        })).catch(e => console.log(e))
+
+        return res.status(200).json(postsOfMe.concat(...friendsPosts))
+    } catch (e) {
+        console.log(e)
+        return res.status(400).json({ message: e })
+
+    }
+}
+
 //投稿全部取る
 const getPosts = async (req, res) => {
     const posts = await Post.find()
@@ -166,3 +188,4 @@ exports.getPostFromParam = getPostFromParam
 exports.setReplies = setReplies
 exports.getReplies = getReplies
 exports.getNumberOfcomment = getNumberOfcomment
+exports.getFollowingsPosts = getFollowingsPosts

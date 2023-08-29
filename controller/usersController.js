@@ -67,8 +67,8 @@ const isFollowing = async (req, res) => {
     const { userId } = req.body // me 
     const { id } = req.params // him
 
+    const user = await User.findById(id);
     try {
-        const user = await User.findById(id);
 
         if (!user) {
             return res.status(404).json({ message: "User not found" });
