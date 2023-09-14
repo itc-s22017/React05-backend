@@ -14,6 +14,8 @@ const post = async (req, res) => {
 //自分とフォローしている人の投稿を取る
 const getFollowingsPosts = async (req, res) => {
     const userId = req.query.userId
+    const skip = parseInt(req.query.skip)
+    const limit = parseInt(req.query.limit)
 
     try {
         const me = await User.findById(userId)
@@ -25,7 +27,14 @@ const getFollowingsPosts = async (req, res) => {
             return Post.find({ userId: id })
         })).catch(e => console.log(e))
 
-        return res.status(200).json(postsOfMe.concat(...friendsPosts))
+        const allPosts = postsOfMe.concat(...friendsPosts).sort((a, b) => b.createdAt - a.createdAt)
+        const Total = postsOfMe.concat(...friendsPosts).filter(data => data.reply === false).length
+
+        const startIndex = skip // skip
+        const endIndex = startIndex + limit // limit
+        const paginatedPosts = allPosts.slice(startIndex, endIndex);
+
+        return res.status(200).json({ posts: paginatedPosts, Total,all:postsOfMe.concat(...friendsPosts) })
     } catch (e) {
         console.log(e)
         return res.status(400).json({ message: e })
@@ -35,9 +44,12 @@ const getFollowingsPosts = async (req, res) => {
 
 //投稿全部取る
 const getPosts = async (req, res) => {
-    const posts = await Post.find()
+    const skip = parseInt(req.query.skip)
+    const limit = parseInt(req.query.limit)
+    const posts = await Post.find({ reply: false }).skip(skip).limit(limit)
+    const Total = await Post.countDocuments({ reply: false })
 
-    return res.status(200).json(posts)
+    return res.status(200).json({ posts, Total })
 }
 
 //特定の人の投稿を全部取る
